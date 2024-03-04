@@ -1,0 +1,38 @@
+import pytesseract
+import numpy as np
+from PIL import Image
+import cv2
+print(cv2._version_)
+
+class Optical_Character_Recognition:
+    def _init_(self):
+        pass
+
+    def process_image(self, image):
+        numpy_ver = np.array(image)  # This is to make it compatible with opencv's image representation
+        filtered_ver = cv2.bilateralFilter(numpy_ver, 9, 75, 75)
+        # the exact values of the kernel dim. and sigma values are ripped straight off the documentation cause idk what
+        # they actually do.
+        
+        # https://docs.opencv.org/4.x/d4/d13/tutorial_py_filtering.html
+        # Using bilateral filtering to remove noise while retaining edges, followed by Canny's edge detection to
+        # retrieve edges
+
+        # potential evaluatory point: using bilateral smoothing (which by the way is very computationally expensive)
+        # followed by gaussian filtering may potentially cause over-smoothing which can reduce the effects of bilateral
+        # smoothing and also reduce accuracy. Look into this
+
+        # https://docs.opencv.org/3.4/da/d22/tutorial_py_canny.html
+        image = cv2.Canny(filtered_ver, 75, 225)
+
+        return image
+
+    def extract_text(self, path_name):
+        with Image.open(path_name) as image:
+            processed_image = self.process_image(image)
+            return pytesseract.image_to_string(processed_image)
+
+
+OCR = Optical_Character_Recognition()
+image_path = "/Users/kostasdemiris/Desktop/Screenshot 2024-02-13 at 15.28.55.png"
+print(OCR.extract_text(image_path))

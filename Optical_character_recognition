@@ -1,3 +1,5 @@
+# THIS IS DEPRECIATED, SAMEER MADE THIS INSTEAD SO IT'S NOT TO BE USED
+
 import pytesseract
 import numpy as np
 from PIL import Image

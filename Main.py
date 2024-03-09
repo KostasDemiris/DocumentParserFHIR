@@ -18,6 +18,7 @@ import os
 import ironpdf
 
 
+
 # noinspection PyMethodMayBeStatic
 # -- This is because it was annoying me
 class systemInteractions:
@@ -136,13 +137,13 @@ class user_interaction:
         self.settings = settings(settings_file_path)
         self.systemInteractions = systemInteractions()
         self.rectangles_selected = []
-        self.application_boundaries = [[0, 0], [0, 0]]
+        self.application_boundaries = [[0,0], [0,0]]
         # Not currently in use, but could bound mouse to the bounds of the application
 
     def get_hot_keys(self):
         return {self.start_recording_key: self.activate_recording,
-                self.quit_thread_key: self.quit_thread,
-                self.stop_hotkeys_key: self.stop_hotkeys}
+        self.quit_thread_key: self.quit_thread,
+        self.stop_hotkeys_key: self.stop_hotkeys}
 
     def start_up_mouse_tracking(self):
         self.mouseTrackObj = mouseTracker(self.settings)
@@ -180,6 +181,7 @@ class mouseTracker:
         self.settings_obj = settingsObj
         self.rectangle = []
         self.controller = mouse.Controller()
+
 
     def reset(self):
         # Resets the state before the tracker gets a rectangle
@@ -219,7 +221,7 @@ class front_end:
         self.current_pdf_path = None
         self.image_paths = []
         self.current_page = 0
-
+        
         self.user_keylogger = user_interaction(None)
 
         self.create_widgets()
@@ -239,15 +241,20 @@ class front_end:
         self.next_button = tk.Button(self.root, text="Next Page", command=self.turn_page_forward, state=tk.DISABLED)
         self.next_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.goto_button = tk.Button(self.root, text="Go to Page", command=self.turn_to_specific_page,
-                                     state=tk.DISABLED)
+        self.goto_button = tk.Button(self.root, text="Go to Page", command=self.turn_to_specific_page, state=tk.DISABLED)
         self.goto_button.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.exit_button = tk.Button(self.root, text="Exit", command=self.root.quit)
         self.exit_button.pack(side=tk.LEFT, padx=5, pady=5)
+        
+        self.save_button = tk.Button(self.root, text="Save Selected", command=self.get_last_rectangle)
+        self.save_button.pack(side=tk.LEFT, padx=5, pady=5)
+
 
         self.image_frame = tk.Frame(self.root)
         self.image_frame.pack(padx=10, pady=10, side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        
 
     def convert_pdf_to_images(self, pdf_file):
         # For big PDF's, this can lag a lot. Ps got this from some tutorial
@@ -263,9 +270,14 @@ class front_end:
             if filename.lower().endswith((".png", ".jpg", ".jpeg", ".gif")):
                 image_paths.append(os.path.join(folder_path, filename))
         return image_paths
-
-    def record(self):
-        pass
+    
+    def get_last_rectangle(self):
+        if self.user_keylogger.rectangles_selected:
+            rect = self.user_keylogger.rectangles_selected[-1]
+            image = ImageGrab.grab(bbox = [rect[0][0], rect[0][1], rect[1][0]-rect[0][0], rect[1][1] - rect[0][1]])
+            image.save("last_rect_img.jpg")
+            # This is what the image is accessible as for further usage
+                    
 
     def select_pdf(self):
         self.clear_image_folder()
@@ -315,8 +327,7 @@ class front_end:
 
     def turn_to_specific_page(self):
         target_page = simpledialog.askinteger("Which page do you want to turn to?", f"Enter the page number, "
-                                                                                    f"from 1 to {len(self.image_paths)}: ",
-                                              parent=self.root)
+                                                f"from 1 to {len(self.image_paths)}: ", parent=self.root)
         if target_page is not None and 1 <= target_page <= len(self.image_paths):
             self.current_page = target_page - 1
             self.show_current_page()
@@ -324,9 +335,10 @@ class front_end:
         else:
             tk.messagebox.showwarning("Invalid Page", f"Page number should be between 1 and {len(self.image_paths)}")
 
+
     def clear_image_folder(self):
-        # This clears all of the images from the current directory, which prevents reading into previous gen pdf slides
-        directory_path = "images"  # os.getcwd()
+        # This clears all of the images from the current Images folder, which prevents reading into previous gen pdf slides
+        directory_path = "images"#os.getcwd()
         for file in os.listdir(directory_path):
             file_path = os.path.join(directory_path, file)
             try:
@@ -335,9 +347,7 @@ class front_end:
             except OSError as e:
                 print(f"Path {file_path} is inaccessible", e)
 
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = front_end(root)
     root.mainloop()
-

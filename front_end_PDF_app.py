@@ -104,7 +104,23 @@ class front_end:
         target_page = simpledialog.askinteger("Which page do you want to turn to?", f"Enter the page number, "
                                                 f"from 1 to {len(self.image_paths) - 1}: ", parent=self.root)
         if target_page is not None and 1 <= target_page < len(self.image_paths):
-            self.current_pageimport tkinter as tk
+            self.current_page = target_page - 1
+            self.show_current_page()
+
+        else:
+            tk.messagebox.showwarning("Invalid Page", f"Page number should be between 1 and {len(self.image_paths)-1}")
+
+
+    def clear_image_folder(self):
+        # This clears all of the images from the current directory, which prevents reading into previous gen pdf slides
+        directory_path = os.getcwd()
+        for file in os.listdir(directory_path):
+            file_path = os.path.join(directory_path, file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except OSError as e:
+                print(f"Path {file_path} is inaccessible", e)
 
 if __name__ == "__main__":
     root = tk.Tk()

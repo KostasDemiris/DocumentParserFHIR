@@ -133,10 +133,12 @@ class user_interaction:
         self.quit_thread_key = '<cmd>+<shift>+2'
         self.stop_hotkeys_key = '<shift>+<cmd>+2'
         self.hotkeys = self.get_hot_keys()
+        self.keyTrackers()
         self.mouseTrackObj = None
         self.settings = settings(settings_file_path)
         self.systemInteractions = systemInteractions()
         self.rectangles_selected = []
+        
         self.application_boundaries = [[0,0], [0,0]]
         # Not currently in use, but could bound mouse to the bounds of the application
 
